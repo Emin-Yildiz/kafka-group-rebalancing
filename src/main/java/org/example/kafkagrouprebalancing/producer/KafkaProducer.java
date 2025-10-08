@@ -16,9 +16,8 @@ public class KafkaProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public String sendMessageToTopic(String topicName, String message) {
+    public void sendMessageToTopic(String topicName, String message) {
         kafkaTemplate.send(topicName, message);
-        return "ok";
     }
 
 }
