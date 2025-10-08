@@ -1,3 +1,7 @@
+
+# Test ortamında 3-5 broker'lı bir kafka sistemi ayağa kaldırırlıyorda her bir broker aynı zamanda controller olabilir. (KAFKA_PROCESS_ROLES: broker,controller)
+# Ancak prod ortamında 50+ broker gibi yapılar var ise 3-5 tane sadece controller rolünde node'lar gerekirken diğerleri broker rolünde olabilir.
+
 version: "3.9"
 
 services:
@@ -17,13 +21,12 @@ services:
       KAFKA_LISTENERS: CONTROLLER://kafka-1:29093,PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      CLUSTER_ID: local-cluster-uuid-1234
+      CLUSTER_ID: cluster-id-1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - ./data/kafka-1:/var/lib/kafka/data
 
   kafka-2:
     image: confluentinc/cp-kafka:8.0.1
@@ -40,13 +43,14 @@ services:
       KAFKA_LISTENERS: CONTROLLER://kafka-2:29093,PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://localhost:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      CLUSTER_ID: local-cluster-uuid-1234
+      CLUSTER_ID: cluster-id-1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - ./data/kafka-2:/var/lib/kafka/data
+    depends_on:
+      - kafka-1
 
   kafka-3:
     image: confluentinc/cp-kafka:8.0.1
@@ -63,19 +67,21 @@ services:
       KAFKA_LISTENERS: CONTROLLER://kafka-3:29093,PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://localhost:9094
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      CLUSTER_ID: local-cluster-uuid-1234
+      CLUSTER_ID: cluster-id-1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - ./data/kafka-3:/var/lib/kafka/data
+    depends_on:
+      - kafka-1
+      - kafka-2
 
   redpanda:
     image: docker.redpanda.com/redpandadata/console:latest
     restart: always
     container_name: redpanda-console
     environment:
-      KAFKA_BROKERS: kafka:29092
+      KAFKA_BROKERS: kafka-1:29092
     ports:
       - "8091:8080"

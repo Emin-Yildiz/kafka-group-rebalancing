@@ -9,7 +9,6 @@ services:
     ports:
       - "9092:9092"
     environment:
-      # --- KRaft (Zookeeper’siz) ayarlar ---
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:29093,2@kafka-2:29093,3@kafka-3:29093
@@ -18,18 +17,13 @@ services:
       KAFKA_LISTENERS: CONTROLLER://kafka-1:29093,PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      # --- Cluster kimliği (tüm node’larda aynı olmalı) ---
-      CLUSTER_ID: FkRaftCluster1234abcd5678
-      # --- Genel Kafka ayarları ---
+      CLUSTER_ID: cluster-id-1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - ./data/kafka-1:/var/lib/kafka/data
 
-    # 🧠 2. Kafka Node
   kafka-2:
     image: confluentinc/cp-kafka:8.0.1
     container_name: kafka-2
@@ -45,18 +39,15 @@ services:
       KAFKA_LISTENERS: CONTROLLER://kafka-2:29093,PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-2:29092,PLAINTEXT_HOST://localhost:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      CLUSTER_ID: FkRaftCluster1234abcd5678
+      CLUSTER_ID: cluster-id-1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - ./data/kafka-2:/var/lib/kafka/data
     depends_on:
       - kafka-1
 
-    # 🧠 3. Kafka Node
   kafka-3:
     image: confluentinc/cp-kafka:8.0.1
     container_name: kafka-3
@@ -72,14 +63,12 @@ services:
       KAFKA_LISTENERS: CONTROLLER://kafka-3:29093,PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-3:29092,PLAINTEXT_HOST://localhost:9094
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      CLUSTER_ID: FkRaftCluster1234abcd5678
+      CLUSTER_ID: cluster-id-1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       KAFKA_DELETE_TOPIC_ENABLE: "true"
-    volumes:
-      - ./data/kafka-3:/var/lib/kafka/data
     depends_on:
       - kafka-1
       - kafka-2
@@ -89,6 +78,6 @@ services:
     restart: always
     container_name: redpanda-console
     environment:
-      KAFKA_BROKERS: kafka:29092
+      KAFKA_BROKERS: kafka1:29092
     ports:
       - "8091:8080"
