@@ -19,15 +19,15 @@ public class KafkaGroupRebalancingApplication {
         SpringApplication.run(KafkaGroupRebalancingApplication.class, args);
     }
 
-//    @Bean
-//    public ApplicationRunner init() {
-//        return args -> {
-//            var durationTime = System.currentTimeMillis();
-//            for (int i = 1; i <= 5; i++) {
-//                producer.sendMessageToTopic("deneme-topic","hello-message-" + i);
-//            }
-//            System.out.println("Time: " + (System.currentTimeMillis() - durationTime)/1000);
-//        };
-//    }
+    @Bean
+    public ApplicationRunner init() {
+        return args -> {
+            var durationTime = System.currentTimeMillis();
+            for (int i = 1; i <= 50000; i++) {
+                producer.sendMessageToTopic("deneme-topic","hello-message-" + i);
+            }
+            System.out.println("Time: " + (System.currentTimeMillis() - durationTime)/1000);
+        };
+    }
 
 }
