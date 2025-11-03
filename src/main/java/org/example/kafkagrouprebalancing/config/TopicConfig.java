@@ -11,7 +11,7 @@ public class TopicConfig {
     @Bean
     public NewTopic createSupplierValidatedTopic() {
         return TopicBuilder.name("deneme-topic")
-                .partitions(Integer.parseInt("5"))
+                .partitions(Integer.parseInt("10"))
                 .build();
     }
 
